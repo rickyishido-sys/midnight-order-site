@@ -19,11 +19,14 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: '注文情報が不正です。' })
   }
 
+  const isSandbox = String(process.env.SQUARE_ENVIRONMENT || '').toLowerCase() === 'sandbox'
+  const squareHost = isSandbox ? 'https://connect.squareupsandbox.com' : 'https://connect.squareup.com'
+
   const idempotencyKey = `checkout-${orderId}`
   const amountMoney = Math.round(amount)
 
   try {
-    const squareResponse = await fetch('https://connect.squareup.com/v2/online-checkout/payment-links', {
+    const squareResponse = await fetch(`${squareHost}/v2/online-checkout/payment-links`, {
       method: 'POST',
       headers: {
         'Square-Version': '2025-10-16',

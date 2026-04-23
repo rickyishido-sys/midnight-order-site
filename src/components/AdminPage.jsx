@@ -1,17 +1,37 @@
 import { useEffect, useMemo, useState } from 'react'
 import { fetchOrdersFromServer, loadOrders, patchOrderToServer, saveOrders } from '../utils/adminOrders'
 import { loadMenuItems, saveMenuItems } from '../utils/menuStore'
+import {
+  aggregateHourlyByOrderTime,
+  aggregateProductSales,
+  filterDeliveredRevenueInMonth,
+  formatMonthLabelJa,
+  listRecentMonthKeys,
+  sumOrderTotals,
+} from '../utils/adminSalesAnalytics'
 import MenuEditor from './MenuEditor'
 import PaymentLinkGenerator from './PaymentLinkGenerator'
 
 const toYen = (value) => `¥${Number(value || 0).toLocaleString()}`
 const ADMIN_PIN = import.meta.env.VITE_ADMIN_PIN || '1122'
 
+const paymentStatusLabel = (order) => {
+  if (order.paymentMethod !== 'square') {
+    return { text: '現地払い', className: '' }
+  }
+  if (order.paymentStatus === 'paid') {
+    return { text: 'オンライン決済：入金済', className: 'admin-payment-paid' }
+  }
+  return { text: 'オンライン決済：未入金', className: 'admin-payment-pending' }
+}
+
 function AdminPage() {
   const [pin, setPin] = useState('')
   const [authorized, setAuthorized] = useState(false)
   const [orders, setOrders] = useState(loadOrders)
   const [menuItems, setMenuItems] = useState(loadMenuItems)
+  const monthOptions = useMemo(() => listRecentMonthKeys(12), [])
+  const [salesMonth, setSalesMonth] = useState(() => monthOptions[0] || '')
 
   useEffect(() => {
     fetchOrdersFromServer()
@@ -43,6 +63,25 @@ function AdminPage() {
       deliveredSales,
     }
   }, [orders])
+
+  const salesAnalytics = useMemo(() => {
+    const monthKey = salesMonth || monthOptions[0]
+    const deliveredInMonth = filterDeliveredRevenueInMonth(orders, monthKey)
+    const revenue = sumOrderTotals(deliveredInMonth)
+    const byProduct = aggregateProductSales(deliveredInMonth)
+    const byHour = aggregateHourlyByOrderTime(deliveredInMonth)
+    const maxHourRevenue = Math.max(0, ...byHour.map((b) => b.revenue))
+    const peakHour =
+      maxHourRevenue > 0 ? byHour.find((b) => b.revenue === maxHourRevenue) ?? null : null
+    return {
+      monthKey,
+      deliveredInMonth,
+      revenue,
+      byProduct,
+      byHour,
+      peakHour,
+    }
+  }, [orders, salesMonth, monthOptions])
 
   const authorize = () => {
     if (pin === ADMIN_PIN) {
@@ -181,6 +220,112 @@ function AdminPage() {
         </article>
       </section>
 
+      <section className="glass admin-sales">
+        <div className="admin-sales-head">
+          <h2>売上分析（月次）</h2>
+          <label className="admin-sales-month-label">
+            <span className="visually-hidden">対象月</span>
+            <select
+              className="admin-sales-month"
+              value={salesAnalytics.monthKey}
+              onChange={(e) => setSalesMonth(e.target.value)}
+            >
+              {monthOptions.map((key) => (
+                <option key={key} value={key}>
+                  {formatMonthLabelJa(key)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <p className="admin-sales-note">
+          月次売上・商品別は<strong>配達完了済み</strong>の注文のみ集計し、計上する月は
+          <strong>配達完了日</strong>（未記録の古いデータは受注日）を東京時間で月に振り分けています。
+          時間帯別は同じ対象月の<strong>受注時刻（東京）</strong>ごとの件数・売上です。
+        </p>
+        <div className="admin-sales-summary">
+          <article>
+            <p>{formatMonthLabelJa(salesAnalytics.monthKey)}の売上（税込・送料込の合計）</p>
+            <strong>{toYen(salesAnalytics.revenue)}</strong>
+          </article>
+          <article>
+            <p>配達完了件数（当月）</p>
+            <strong>{salesAnalytics.deliveredInMonth.length}件</strong>
+          </article>
+          <article>
+            <p>受注ピーク時間帯（売上ベース）</p>
+            <strong>{salesAnalytics.peakHour ? `${salesAnalytics.peakHour.hour}時台` : '—'}</strong>
+          </article>
+        </div>
+        <div className="admin-sales-tables">
+          <div className="admin-sales-block">
+            <h3>商品別売上（行小計の合計）</h3>
+            <div className="admin-sales-table-wrap">
+              <table className="admin-sales-table">
+                <thead>
+                  <tr>
+                    <th>商品名</th>
+                    <th className="num">数量</th>
+                    <th className="num">売上</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {salesAnalytics.byProduct.length === 0 ? (
+                    <tr>
+                      <td colSpan={3}>該当月に配達完了した注文はありません。</td>
+                    </tr>
+                  ) : (
+                    salesAnalytics.byProduct.map((row) => (
+                      <tr key={row.name}>
+                        <td>{row.name}</td>
+                        <td className="num">{row.quantity}</td>
+                        <td className="num">{toYen(row.revenue)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="admin-sales-block">
+            <h3>時間帯別（受注・当月の配達完了分のみ）</h3>
+            <div className="admin-sales-table-wrap">
+              <table className="admin-sales-table">
+                <thead>
+                  <tr>
+                    <th>時間帯（東京）</th>
+                    <th className="num">件数</th>
+                    <th className="num">売上</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {salesAnalytics.byHour.every((b) => b.count === 0) ? (
+                    <tr>
+                      <td colSpan={3}>該当月に配達完了した注文はありません。</td>
+                    </tr>
+                  ) : (
+                    salesAnalytics.byHour.map((b) => (
+                      <tr key={b.hour}>
+                        <td>
+                          {b.hour}時台
+                          {salesAnalytics.peakHour &&
+                          b.hour === salesAnalytics.peakHour.hour &&
+                          b.revenue > 0 ? (
+                            <span className="admin-sales-hour-muted"> ピーク</span>
+                          ) : null}
+                        </td>
+                        <td className="num">{b.count}</td>
+                        <td className="num">{toYen(b.revenue)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <MenuEditor
         menuItems={menuItems}
         onAdd={addMenuItem}
@@ -194,7 +339,9 @@ function AdminPage() {
 
       <section className="admin-orders">
         {orders.length === 0 && <p className="glass admin-empty">注文データがまだありません。</p>}
-        {orders.map((order) => (
+        {orders.map((order) => {
+          const pay = paymentStatusLabel(order)
+          return (
           <article className="glass admin-card" key={order.id}>
             <div className="admin-card-head">
               <div>
@@ -226,6 +373,11 @@ function AdminPage() {
                   ? '銀行振込'
                   : '次回値引き'}
             </p>
+            <p className="admin-meta-line">
+              <span className={['admin-payment-badge', pay.className].filter(Boolean).join(' ')}>
+                {pay.text}
+              </span>
+            </p>
             {order.cashbackReceiver ? (
               <p className="admin-meta-line">受取先: {order.cashbackReceiver}</p>
             ) : null}
@@ -243,7 +395,8 @@ function AdminPage() {
               )}
             </div>
           </article>
-        ))}
+          )
+        })}
       </section>
     </main>
   )
