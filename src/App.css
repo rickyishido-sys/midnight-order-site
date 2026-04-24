@@ -1644,6 +1644,54 @@ h1 {
   font-weight: 600;
 }
 
+.admin-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 12px;
+  padding: 6px;
+  border-radius: var(--radius-card);
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.admin-tab {
+  flex: 1 1 auto;
+  min-width: 5.5rem;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-sub);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.admin-tab:hover {
+  color: var(--text);
+  border-color: rgba(181, 111, 58, 0.45);
+}
+
+.admin-tab--active {
+  background: rgba(181, 111, 58, 0.22);
+  border-color: rgba(181, 111, 58, 0.55);
+  color: var(--text);
+  box-shadow: 0 0 0 1px rgba(181, 111, 58, 0.2);
+}
+
+.admin-tab-panel {
+  margin-bottom: 4px;
+}
+
 .admin-sales {
   border-radius: var(--radius-card);
   padding: 14px 16px;

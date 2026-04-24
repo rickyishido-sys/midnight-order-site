@@ -17,6 +17,13 @@ import PaymentLinkGenerator from './PaymentLinkGenerator'
 const toYen = (value) => `¥${Number(value || 0).toLocaleString()}`
 const ADMIN_PIN = import.meta.env.VITE_ADMIN_PIN || '1122'
 
+const ADMIN_TABS = [
+  { id: 'sales', label: '売上分析' },
+  { id: 'menu', label: '日替わりメニュー' },
+  { id: 'payment', label: '決済リンク' },
+  { id: 'orders', label: '注文管理' },
+]
+
 const paymentStatusLabel = (order) => {
   if (order.paymentMethod !== 'square') {
     return { text: '現地払い', className: '' }
@@ -34,6 +41,7 @@ function AdminPage() {
   const [menuItems, setMenuItems] = useState(loadMenuItems)
   const monthOptions = useMemo(() => listRecentMonthKeys(12), [])
   const [salesMonth, setSalesMonth] = useState(() => monthOptions[0] || '')
+  const [activeTab, setActiveTab] = useState('orders')
 
   useEffect(() => {
     fetchOrdersFromServer()
@@ -224,7 +232,23 @@ function AdminPage() {
         </article>
       </section>
 
-      <section className="glass admin-sales">
+      <nav className="admin-tabs" role="tablist" aria-label="管理画面の表示切替">
+        {ADMIN_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            className={activeTab === tab.id ? 'admin-tab admin-tab--active' : 'admin-tab'}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      {activeTab === 'sales' ? (
+      <section className="glass admin-sales" role="tabpanel" aria-label="売上分析">
         <div className="admin-sales-head">
           <h2>売上分析（月次）</h2>
           <label className="admin-sales-month-label">
@@ -356,19 +380,29 @@ function AdminPage() {
           </div>
         </div>
       </section>
+      ) : null}
 
-      <MenuEditor
-        menuItems={menuItems}
-        onAdd={addMenuItem}
-        onUpdate={updateMenuItem}
-        onDelete={removeMenuItem}
-        onMove={moveMenuItem}
-        onClear={clearMenuItems}
-      />
+      {activeTab === 'menu' ? (
+        <div className="admin-tab-panel" role="tabpanel" aria-label="メニュー管理">
+          <MenuEditor
+            menuItems={menuItems}
+            onAdd={addMenuItem}
+            onUpdate={updateMenuItem}
+            onDelete={removeMenuItem}
+            onMove={moveMenuItem}
+            onClear={clearMenuItems}
+          />
+        </div>
+      ) : null}
 
-      <PaymentLinkGenerator menuItems={menuItems} />
+      {activeTab === 'payment' ? (
+        <div className="admin-tab-panel" role="tabpanel" aria-label="決済リンク生成">
+          <PaymentLinkGenerator menuItems={menuItems} />
+        </div>
+      ) : null}
 
-      <section className="admin-orders">
+      {activeTab === 'orders' ? (
+      <section className="admin-orders admin-tab-panel" role="tabpanel" aria-label="注文管理">
         {orders.length === 0 && <p className="glass admin-empty">注文データがまだありません。</p>}
         {orders.map((order) => {
           const pay = paymentStatusLabel(order)
@@ -429,6 +463,7 @@ function AdminPage() {
           )
         })}
       </section>
+      ) : null}
     </main>
   )
 }
