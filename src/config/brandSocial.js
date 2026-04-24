@@ -3,7 +3,7 @@ const env = import.meta.env
 
 export const brandSocial = {
   instagram: env.VITE_SOCIAL_INSTAGRAM || 'https://www.instagram.com/ohaco.yokohama/',
-  lineFriend: env.VITE_SOCIAL_LINE || 'https://line.me/ti/p/@349nlxlw',
+  lineFriend: env.VITE_SOCIAL_LINE || 'https://lin.ee/pCczHKV',
   tiktok: env.VITE_SOCIAL_TIKTOK || '',
   threads: env.VITE_SOCIAL_THREADS || '',
 }

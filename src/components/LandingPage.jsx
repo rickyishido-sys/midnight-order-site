@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
+import { brandSocial } from '../config/brandSocial'
 import Header from './Header'
 import SocialFollowRow from './SocialFollowRow'
 
 const ORDER_URL = '/order'
+const LINE_ADD_URL = brandSocial.lineFriend
+const lineLinkProps = { target: '_blank', rel: 'noopener noreferrer' }
 
 function LandingPage() {
   const [heroScrolled, setHeroScrolled] = useState(false)
@@ -32,8 +35,8 @@ function LandingPage() {
             注文するたびに10%のキャッシュバックが貯まるメンバー制サービスです。
           </p>
           <div className="lp-actions">
-            <a className="lp-primary btn-primary" href={ORDER_URL}>
-              LINEで注文する
+            <a className="lp-primary btn-line" href={LINE_ADD_URL} {...lineLinkProps}>
+              LINEで友だち追加
             </a>
             <a className="lp-secondary btn-secondary" href="/menu">
               本日のメニューを見る
@@ -97,9 +100,12 @@ function LandingPage() {
             <li>リッチメニューから注文ページを開き、商品をカートに入れて送信</li>
             <li>温かいお食事をお届け（お届けまでの時間は状況により前後します）</li>
           </ol>
-          <a className="lp-inline-cta btn-line" href={ORDER_URL}>
-            LINEで注文を送る
+          <a className="lp-inline-cta btn-line" href={LINE_ADD_URL} {...lineLinkProps}>
+            LINEで友だち追加
           </a>
+          <p className="lp-flow-order-note">
+            友だち追加後は、トーク画面の<strong>リッチメニュー</strong>から「注文する」で注文ページへ進みます。
+          </p>
         </section>
 
         <section className="lp-section glass lp-area" id="area">
@@ -115,9 +121,14 @@ function LandingPage() {
           <SocialFollowRow tone="light" className="lp-social-icons" />
         </section>
 
-        <a className="lp-fixed-order btn-primary" href={ORDER_URL}>
-          注文ページを開く
-        </a>
+        <div className="lp-fixed-stack">
+          <a className="lp-fixed-order btn-line" href={LINE_ADD_URL} {...lineLinkProps}>
+            LINEで友だち追加
+          </a>
+          <a className="lp-fixed-link-order" href={ORDER_URL}>
+            すでに友だちの方は注文ページへ
+          </a>
+        </div>
         <a className="lp-admin-link" href="/admin">
           管理画面
         </a>

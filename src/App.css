@@ -819,7 +819,7 @@
 .lp-below {
   max-width: var(--max-col);
   margin: 0 auto;
-  padding: 0 14px 120px;
+  padding: 0 14px 148px;
 }
 
 .lp-actions {
@@ -981,6 +981,18 @@
   padding: 16px 24px;
 }
 
+.lp-flow-order-note {
+  margin: 12px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text-sub);
+}
+
+.lp-flow-order-note strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .lp-inline-cta.btn-secondary {
   width: 100%;
   box-sizing: border-box;
@@ -991,14 +1003,37 @@
   color: var(--text-sub);
 }
 
-.lp-fixed-order {
+.lp-fixed-stack {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
   bottom: 12px;
   width: min(var(--max-col), calc(100% - 28px));
-  text-align: center;
   z-index: 12;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.lp-fixed-order {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.lp-fixed-link-order {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-sub);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lp-fixed-link-order:hover {
+  color: var(--accent);
 }
 
 .lp-admin-link {
