@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { applyNoStoreJson } from './_lib/cacheHeaders.js'
 import {
   patchOrderInKv,
   readOrdersFromKv,
@@ -7,6 +8,7 @@ import {
 } from './_lib/kvStore.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  applyNoStoreJson(res)
   try {
     if (req.method === 'GET') {
       const orders = await readOrdersFromKv()

@@ -1,3 +1,5 @@
+import { brandSocial } from '../config/brandSocial'
+
 function JoinPage() {
   return (
     <main className="join-page">
@@ -7,7 +9,9 @@ function JoinPage() {
         <div className="join-hero-content">
           <img className="join-logo" src="/images/ohaco-logo.png" alt="OHACO" />
           <h1>横浜一美味しい深夜デリバリー</h1>
-          <p>深夜帯の「今すぐ必要」を止めない配達サービス</p>
+          <p>
+            「美味しい」は味だけでなく、会員向けキャッシュバックのお得さも。深夜帯の「今すぐ必要」を止めない配達です。
+          </p>
         </div>
       </section>
 
@@ -27,9 +31,14 @@ function JoinPage() {
       </section>
 
       <div className="join-sticky-cta">
-        <a className="btn-line" href="https://line.me/ti/p/@349nlxlw" target="_blank" rel="noreferrer">
-          LINEで友だち追加してメンバーになる
-        </a>
+        <div className="join-sticky-stack">
+          <a className="btn-line" href={brandSocial.lineFriend} target="_blank" rel="noreferrer">
+            LINEで友だち追加してメンバーになる
+          </a>
+          <a className="btn-instagram-outline" href={brandSocial.instagram} target="_blank" rel="noreferrer">
+            Instagram をフォロー（@ohaco.yokohama）
+          </a>
+        </div>
       </div>
     </main>
   )

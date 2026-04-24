@@ -15,8 +15,11 @@ export const saveOrders = (orders) => {
   localStorage.setItem(ORDERS_KEY, JSON.stringify(orders))
 }
 
+const noStoreFetch = (input, init = {}) =>
+  fetch(input, { ...init, cache: 'no-store' })
+
 export const fetchOrdersFromServer = async () => {
-  const response = await fetch('/api/orders')
+  const response = await noStoreFetch('/api/orders')
   if (!response.ok) throw new Error('Failed to fetch orders from server')
   const data = await response.json()
   const orders = Array.isArray(data.orders) ? data.orders : []
@@ -25,7 +28,7 @@ export const fetchOrdersFromServer = async () => {
 }
 
 export const syncOrdersToServer = async (orders) => {
-  const response = await fetch('/api/orders', {
+  const response = await noStoreFetch('/api/orders', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ orders }),
@@ -34,7 +37,7 @@ export const syncOrdersToServer = async (orders) => {
 }
 
 export const upsertOrderToServer = async (order) => {
-  const response = await fetch('/api/orders', {
+  const response = await noStoreFetch('/api/orders', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ order }),
@@ -43,7 +46,7 @@ export const upsertOrderToServer = async (order) => {
 }
 
 export const patchOrderToServer = async (id, patch) => {
-  const response = await fetch('/api/orders', {
+  const response = await noStoreFetch('/api/orders', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id, patch }),
@@ -60,7 +63,7 @@ export const upsertOrder = (order) => {
     orders.unshift(order)
   }
   saveOrders(orders)
-  fetch('/api/orders', {
+  noStoreFetch('/api/orders', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ order }),

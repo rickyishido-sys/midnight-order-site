@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import { DISPLAY_SECTION_OPTIONS } from '../utils/menuDisplaySections'
 
 function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
   const [form, setForm] = useState({
     name: '',
     price: '',
     description: '',
-    category: 'フード',
+    displaySection: 'カリッと',
     imageKey: '',
     requiresReservation: false,
   })
@@ -22,7 +23,8 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
       name: form.name.trim(),
       price,
       description: form.description.trim(),
-      category: form.category || 'フード',
+      category: 'フード',
+      displaySection: form.displaySection,
       imageKey: form.imageKey || '',
       enabled: true,
       requiresReservation: form.requiresReservation === true,
@@ -32,7 +34,7 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
       name: '',
       price: '',
       description: '',
-      category: 'フード',
+      displaySection: 'カリッと',
       imageKey: '',
       requiresReservation: false,
     })
@@ -44,7 +46,13 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
         <h2>日替わりメニュー管理</h2>
         <p>追加・編集・削除・並び替え・日次リセットができます。</p>
         <p className="admin-menu-reservation-hint">
+          「表示セクション」は注文ページ・本日のメニューで見出しごとに並びます（カリッと／さっぱりと／〆に／ひと皿で／盛り合わせ）。
+        </p>
+        <p className="admin-menu-reservation-hint">
           「予約必要」にチェックした商品は、注文ページと本日のメニューに「要予約」と表示されます（前日16時までの予約が必要な案内）。
+        </p>
+        <p className="admin-menu-reservation-hint">
+          保存した内容はサーバー（KV または REDIS）に書き込まれ、すべての端末の注文ページ・本日のメニューに同じ内容が表示されます。
         </p>
       </div>
 
@@ -62,12 +70,15 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
           placeholder="価格"
         />
         <select
-          value={form.category}
-          onChange={(event) => setForm({ ...form, category: event.target.value })}
+          value={form.displaySection}
+          onChange={(event) => setForm({ ...form, displaySection: event.target.value })}
+          aria-label="表示セクション"
         >
-          <option value="フード">フード</option>
-          <option value="ドリンク">ドリンク</option>
-          <option value="乾き物">乾き物</option>
+          {DISPLAY_SECTION_OPTIONS.map(({ value, label }) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
         </select>
         <input
           type="text"
@@ -112,12 +123,15 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
               onChange={(event) => onUpdate(item.id, 'price', Number(event.target.value))}
             />
             <select
-              value={item.category || 'フード'}
-              onChange={(event) => onUpdate(item.id, 'category', event.target.value)}
+              value={item.displaySection || 'カリッと'}
+              onChange={(event) => onUpdate(item.id, 'displaySection', event.target.value)}
+              aria-label="表示セクション"
             >
-              <option value="フード">フード</option>
-              <option value="ドリンク">ドリンク</option>
-              <option value="乾き物">乾き物</option>
+              {DISPLAY_SECTION_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
             <input
               type="text"

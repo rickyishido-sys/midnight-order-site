@@ -16,7 +16,7 @@ function Header() {
         <p className="brand-main">法人・店舗向け 配達オーダー</p>
       </div>
       <div className="header-meta">
-        <span className="time-badge">最短20〜30分</span>
+        <span className="time-badge">10%キャッシュバック</span>
         <span className="service-area">横浜市西区・中区・南区</span>
       </div>
     </header>

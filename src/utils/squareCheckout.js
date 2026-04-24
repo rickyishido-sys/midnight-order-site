@@ -3,6 +3,7 @@ export const createSquarePaymentLink = async ({ orderId, total, note }) => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ orderId, total, note }),
+    cache: 'no-store',
   })
 
   if (!response.ok) {

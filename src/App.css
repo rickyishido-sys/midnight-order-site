@@ -244,6 +244,31 @@
   margin-bottom: 0;
 }
 
+.menu-category-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-category-block + .menu-category-block {
+  margin-top: 18px;
+}
+
+.menu-category-title {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-family: var(--font-body);
+}
+
+.menu-category-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .menu-card {
   border-radius: var(--radius-card);
   padding: 12px;
@@ -989,12 +1014,65 @@
   color: var(--accent);
 }
 
+.lp-social-copy {
+  margin: 0 0 16px;
+  font-size: 0.92rem;
+  color: var(--text-sub);
+  line-height: 1.55;
+  max-width: 36em;
+}
+
+.lp-social-icons {
+  justify-content: flex-start;
+}
+
+.social-follow-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.social-follow-row--light .social-icon-link,
+.social-follow-row--dark .social-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 240, 232, 0.32);
+  color: rgba(245, 240, 232, 0.9);
+  text-decoration: none;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.social-follow-row--dark .social-icon-link {
+  border-color: rgba(201, 169, 110, 0.35);
+  color: rgba(201, 169, 110, 0.95);
+}
+
+.social-icon-link:hover {
+  color: var(--accent);
+  border-color: rgba(181, 111, 58, 0.65);
+  background: rgba(181, 111, 58, 0.1);
+}
+
+.social-follow-row--dark .social-icon-link:hover {
+  color: #e8c98a;
+  border-color: rgba(232, 201, 138, 0.5);
+  background: rgba(232, 201, 138, 0.08);
+}
+
 /* ----- Join page ----- */
 .join-page {
   min-height: 100svh;
   background: #111111;
   color: #f5f0e8;
-  padding-bottom: 104px;
+  padding-bottom: 156px;
 }
 
 .join-hero {
@@ -1083,6 +1161,38 @@
   transform: translateX(-50%);
   width: min(480px, calc(100% - 24px));
   z-index: 12;
+}
+
+.join-sticky-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-instagram-outline {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 168, 56, 0.55);
+  color: #e8a838;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  background: rgba(28, 28, 28, 0.95);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn-instagram-outline:hover {
+  border-color: rgba(245, 210, 140, 0.85);
+  color: #f5d28c;
+  background: rgba(40, 36, 28, 0.98);
 }
 
 /* ----- Cashback page ----- */
@@ -1312,11 +1422,37 @@
   color: #c9a96e;
 }
 
+.menu-public-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding-bottom: 8px;
+}
+
+.menu-public-group {
+  margin: 0;
+}
+
+.menu-public-category-title {
+  margin: 0 16px 10px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #c9a96e;
+  border-bottom: 1px solid #242424;
+  padding-bottom: 6px;
+}
+
 .menu-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding: 0 16px 32px;
+  padding: 0 16px 0;
+}
+
+.menu-public-groups .menu-grid:last-child {
+  padding-bottom: 32px;
 }
 
 .menu-public-card {
@@ -1420,6 +1556,11 @@
   font-size: 11px;
   color: #8a8a8a;
   line-height: 2;
+}
+
+.menu-footer-social {
+  justify-content: center;
+  margin-bottom: 14px;
 }
 
 .menu-footer p {
@@ -1933,6 +2074,15 @@ h1 {
 .admin-menu-reset button {
   font-size: 0.82rem;
   padding: 8px 10px;
+}
+
+.admin-client-bundle-foot {
+  margin: 20px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.72rem;
+  color: var(--text-sub);
+  word-break: break-all;
 }
 
 .admin-payment-link {

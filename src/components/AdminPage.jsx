@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { fetchOrdersFromServer, loadOrders, patchOrderToServer, saveOrders } from '../utils/adminOrders'
-import { loadMenuItems, saveMenuItems } from '../utils/menuStore'
+import { fetchMenuFromServer, loadMenuItems, saveMenuItems, syncMenuToServer } from '../utils/menuStore'
 import {
   aggregateDailySalesForMonth,
   aggregateHourlyByOrderTime,
@@ -42,12 +42,24 @@ function AdminPage() {
   const monthOptions = useMemo(() => listRecentMonthKeys(12), [])
   const [salesMonth, setSalesMonth] = useState(() => monthOptions[0] || '')
   const [activeTab, setActiveTab] = useState('orders')
+  const [frontendBundle] = useState(() => {
+    if (typeof document === 'undefined') return '（不明）'
+    const mod = document.querySelector('script[type="module"]')
+    return mod?.getAttribute('src')?.split('/').pop() || '（不明）'
+  })
 
   useEffect(() => {
     fetchOrdersFromServer()
       .then((serverOrders) => setOrders(serverOrders))
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!authorized) return
+    fetchMenuFromServer()
+      .then(setMenuItems)
+      .catch(() => {})
+  }, [authorized])
 
   const stats = useMemo(() => {
     const totalOrders = orders.length
@@ -133,6 +145,11 @@ function AdminPage() {
   const syncMenu = (nextItems) => {
     setMenuItems(nextItems)
     saveMenuItems(nextItems)
+    syncMenuToServer(nextItems).catch(() => {
+      alert(
+        'サーバーへのメニュー保存に失敗しました。注文ページ・本日のメニューに反映されない可能性があります。KV / REDIS の設定とネットワークをご確認ください。',
+      )
+    })
   }
 
   const addMenuItem = (item) => syncMenu([...menuItems, item])
@@ -464,6 +481,10 @@ function AdminPage() {
         })}
       </section>
       ) : null}
+
+      <p className="admin-client-bundle-foot" title="デプロイ後にこのファイル名が変われば新しいフロントが届いています。">
+        読み込み中の JS: {frontendBundle}
+      </p>
     </main>
   )
 }

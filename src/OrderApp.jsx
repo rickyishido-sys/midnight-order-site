@@ -7,7 +7,7 @@ import OrderButton from './components/OrderButton'
 import { buildOrderMessage } from './utils/orderMessage'
 import { initLineClient, sendOrderToLine } from './utils/lineClient'
 import { fetchOrdersFromServer, loadOrders, patchOrderToServer, upsertOrder, upsertOrderToServer } from './utils/adminOrders'
-import { loadMenuItems } from './utils/menuStore'
+import { fetchMenuFromServer, loadMenuItems } from './utils/menuStore'
 import { createSquarePaymentLink } from './utils/squareCheckout'
 
 const MINIMUM_ORDER = 3000
@@ -93,7 +93,7 @@ function OrderApp() {
   const [lineStatus, setLineStatus] = useState('')
   const [zipLoading, setZipLoading] = useState(false)
   const [zipError, setZipError] = useState('')
-  const [menuCatalog] = useState(loadMenuItems)
+  const [menuCatalog, setMenuCatalog] = useState(loadMenuItems)
   const [hasLastOrder, setHasLastOrder] = useState(() =>
     Boolean(localStorage.getItem(LAST_ORDER_KEY)),
   )
@@ -117,7 +117,10 @@ function OrderApp() {
       if (target.paymentStatus === 'paid') return
 
       try {
-        const response = await fetch(`/api/get-square-order-status?squareOrderId=${encodeURIComponent(target.squareOrderId)}`)
+        const response = await fetch(
+          `/api/get-square-order-status?squareOrderId=${encodeURIComponent(target.squareOrderId)}`,
+          { cache: 'no-store' },
+        )
         if (!response.ok) return
         const data = await response.json()
         if (!data.paid) return
@@ -142,6 +145,12 @@ function OrderApp() {
     }
 
     syncReturnedSquarePayment()
+  }, [])
+
+  useEffect(() => {
+    fetchMenuFromServer()
+      .then(setMenuCatalog)
+      .catch(() => {})
   }, [])
 
   const activeMenuItems = useMemo(

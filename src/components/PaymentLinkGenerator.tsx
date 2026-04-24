@@ -103,6 +103,7 @@ export default function PaymentLinkGenerator({ menuItems }: Props) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items, note: noteOpt }),
+        cache: 'no-store',
       })
       const data = (await res.json()) as { url?: string; orderId?: string; error?: unknown }
 

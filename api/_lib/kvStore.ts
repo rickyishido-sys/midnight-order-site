@@ -1,5 +1,6 @@
 export const ORDERS_KV_KEY = 'ohaco_orders'
 export const CASHBACK_HISTORY_KV_KEY = 'ohaco_cashback_history'
+export const MENU_KV_KEY = 'ohaco_menu_catalog'
 
 const hasKvConfig = () =>
   Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN)
@@ -122,6 +123,30 @@ export const readCashbackHistoryFromKv = async () => {
 
 export const writeCashbackHistoryToKv = async (history: unknown[]) => {
   await setArray(CASHBACK_HISTORY_KV_KEY, history)
+}
+
+/** KV に一度も書いていないときは null。空配列は「メニュー全削除」として有効。 */
+export const readMenuFromKv = async (): Promise<unknown[] | null> => {
+  ensureKvConfig()
+  if (hasKvConfig()) {
+    const kv = await getVercelKvClient()
+    const data = await kv.get(MENU_KV_KEY)
+    if (data === null || data === undefined) return null
+    return Array.isArray(data) ? data : null
+  }
+  const client = await getRedisClient()
+  const raw = await client.get(MENU_KV_KEY)
+  if (raw === null || raw === undefined) return null
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+export const writeMenuToKv = async (items: unknown[]) => {
+  await setArray(MENU_KV_KEY, items)
 }
 
 export const upsertCashbackEntryInKv = async (entry: Record<string, unknown>) => {

@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react'
-import { loadMenuItems } from '../utils/menuStore'
+import { useEffect, useMemo, useState } from 'react'
+import { groupMenuItemsByDisplaySection } from '../utils/menuDisplaySections'
+import { fetchMenuFromServer, loadMenuItems } from '../utils/menuStore'
 import MenuCard from './MenuCard'
+import SocialFollowRow from './SocialFollowRow'
 
 const todayLabel = () => {
   const now = new Date()
@@ -9,8 +11,15 @@ const todayLabel = () => {
 }
 
 function MenuPage() {
-  const [items] = useState(loadMenuItems)
+  const [items, setItems] = useState(loadMenuItems)
   const visibleItems = useMemo(() => items.filter((item) => item.enabled !== false), [items])
+  const menuGroups = useMemo(() => groupMenuItemsByDisplaySection(visibleItems), [visibleItems])
+
+  useEffect(() => {
+    fetchMenuFromServer()
+      .then(setItems)
+      .catch(() => {})
+  }, [])
 
   return (
     <main className="menu-public-page">
@@ -31,14 +40,30 @@ function MenuPage() {
           <p>本日のメニューは準備中です</p>
         </div>
       ) : (
-        <section className="menu-grid">
-          {visibleItems.map((item) => (
-            <MenuCard key={item.id} item={item} />
+        <div className="menu-public-groups">
+          {menuGroups.map(({ section, items: groupItems }) => (
+            <section
+              className="menu-public-group"
+              key={section}
+              aria-labelledby={menuGroups.length > 1 ? `menu-sec-${section}` : undefined}
+            >
+              {menuGroups.length > 1 ? (
+                <h2 className="menu-public-category-title" id={`menu-sec-${section}`}>
+                  {section}
+                </h2>
+              ) : null}
+              <div className="menu-grid">
+                {groupItems.map((item) => (
+                  <MenuCard key={item.id} item={item} />
+                ))}
+              </div>
+            </section>
           ))}
-        </section>
+        </div>
       )}
 
       <footer className="menu-footer">
+        <SocialFollowRow tone="dark" className="menu-footer-social" />
         <p>© OHACO</p>
         <p>横浜市西区・中区・南区</p>
       </footer>
