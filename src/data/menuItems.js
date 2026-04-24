@@ -17,6 +17,7 @@ export const menuItems = [
     description: 'ついつい手が伸びるサイド',
     category: 'フード',
     displaySection: 'カリッと',
+    imageKey: 'chicken_nugget',
     enabled: true,
   },
   {
@@ -26,7 +27,7 @@ export const menuItems = [
     description: '熱々サクサク',
     category: 'フード',
     displaySection: 'カリッと',
-    imageKey: 'fries',
+    imageKey: 'friedpotato',
     enabled: true,
   },
   {
@@ -36,6 +37,7 @@ export const menuItems = [
     description: '2種類をお楽しみください',
     category: 'フード',
     displaySection: 'カリッと',
+    imageKey: 'kushiage',
     enabled: true,
   },
   {
@@ -45,7 +47,7 @@ export const menuItems = [
     description: '揚げ物を一度に味わえる',
     category: 'フード',
     displaySection: '盛り合わせ',
-    imageKey: 'snack',
+    imageKey: 'agemonoMIX',
     enabled: true,
   },
   {
@@ -55,6 +57,7 @@ export const menuItems = [
     description: 'さっぱり箸休め',
     category: 'フード',
     displaySection: 'さっぱりと',
+    imageKey: 'oshinkoMIX',
     enabled: true,
   },
   {
@@ -64,6 +67,7 @@ export const menuItems = [
     description: 'ビールにも合う一品',
     category: 'フード',
     displaySection: 'さっぱりと',
+    imageKey: 'pirikaracya-syu',
     enabled: true,
   },
   {
@@ -73,6 +77,7 @@ export const menuItems = [
     description: '懐かしの味わい',
     category: 'フード',
     displaySection: 'さっぱりと',
+    imageKey: 'makaroni',
     enabled: true,
   },
   {
@@ -82,6 +87,7 @@ export const menuItems = [
     description: '出汁の香りたっぷり',
     category: 'フード',
     displaySection: 'さっぱりと',
+    imageKey: 'tamagoyaki',
     enabled: true,
   },
   {
@@ -91,6 +97,7 @@ export const menuItems = [
     description: 'シェアにも',
     category: 'フード',
     displaySection: 'ひと皿で',
+    imageKey: 'nachos',
     enabled: true,
   },
   {
@@ -100,6 +107,7 @@ export const menuItems = [
     description: '野菜たっぷり',
     category: 'フード',
     displaySection: 'ひと皿で',
+    imageKey: 'yasaichidimi',
     enabled: true,
   },
   {
@@ -109,6 +117,7 @@ export const menuItems = [
     description: 'シンプルに旨い',
     category: 'フード',
     displaySection: '〆に',
+    imageKey: 'shioyakisoba',
     enabled: true,
   },
   {
@@ -118,6 +127,7 @@ export const menuItems = [
     description: 'スパイスの香り',
     category: 'フード',
     displaySection: '〆に',
+    imageKey: 'tacoraisu',
     enabled: true,
   },
   {
@@ -127,6 +137,7 @@ export const menuItems = [
     description: 'ふんわり卵',
     category: 'フード',
     displaySection: '〆に',
+    imageKey: 'tamagocya-han',
     enabled: true,
   },
   {
@@ -136,7 +147,7 @@ export const menuItems = [
     description: '〆にちょうどよい',
     category: 'フード',
     displaySection: '〆に',
-    imageKey: 'onigiri',
+    imageKey: 'onigiritukemonoMIX',
     enabled: true,
   },
   {
@@ -146,6 +157,7 @@ export const menuItems = [
     description: '季節の果物を盛り合わせ',
     category: 'フード',
     displaySection: '盛り合わせ',
+    imageKey: 'fruitsMIX',
     enabled: true,
   },
 ]

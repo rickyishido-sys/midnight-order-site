@@ -26,10 +26,15 @@ function MenuList({ items, quantities, onAdjust }) {
                   <div className="menu-card-left">
                     <div className="menu-thumb">
                       <img
-                        src={getMenuImageUrl(item.name)}
+                        src={getMenuImageUrl(item)}
                         alt={`${item.name}のイメージ`}
                         loading="lazy"
                         onError={(e) => {
+                          if (item.imageKey && !e.currentTarget.dataset.fallbackTried) {
+                            e.currentTarget.dataset.fallbackTried = '1'
+                            e.currentTarget.src = `/images/menu/${encodeURIComponent(item.imageKey)}.jpg`
+                            return
+                          }
                           e.currentTarget.style.display = 'none'
                         }}
                       />

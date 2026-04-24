@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { DISPLAY_SECTION_OPTIONS } from '../utils/menuDisplaySections'
+import { MENU_IMAGE_OPTIONS } from '../utils/menuImageKeys'
 
 function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
   const [form, setForm] = useState({
@@ -90,11 +91,11 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
           value={form.imageKey}
           onChange={(event) => setForm({ ...form, imageKey: event.target.value })}
         >
-          <option value="">画像なし（デフォルト）</option>
-          <option value="karaage">唐揚げ</option>
-          <option value="fries">フライドポテト</option>
-          <option value="snack">乾き物・おつまみ</option>
-          <option value="onigiri">おにぎり</option>
+          {MENU_IMAGE_OPTIONS.map(({ value, label }) => (
+            <option key={value || '__none__'} value={value}>
+              {label}
+            </option>
+          ))}
         </select>
         <label className="admin-menu-toggle admin-menu-toggle-reservation">
           <input
@@ -143,11 +144,11 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
               value={item.imageKey || ''}
               onChange={(event) => onUpdate(item.id, 'imageKey', event.target.value)}
             >
-              <option value="">画像なし（デフォルト）</option>
-              <option value="karaage">唐揚げ</option>
-              <option value="fries">フライドポテト</option>
-              <option value="snack">乾き物・おつまみ</option>
-              <option value="onigiri">おにぎり</option>
+              {MENU_IMAGE_OPTIONS.map(({ value, label }) => (
+                <option key={value || '__none__'} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
             <label className="admin-menu-toggle admin-menu-toggle-reservation">
               <input

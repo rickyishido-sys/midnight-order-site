@@ -1,0 +1,20 @@
+export const MENU_IMAGE_OPTIONS = [
+  { value: '', label: '画像なし（デフォルト）' },
+  { value: 'karaage', label: 'からあげ(5個)' },
+  { value: 'chicken_nugget', label: 'チキンナゲット' },
+  { value: 'friedpotato', label: 'フライドポテト' },
+  { value: 'kushiage', label: '串カツ(2種2本ずつ)' },
+  { value: 'agemonoMIX', label: '揚物盛り合わせ' },
+  { value: 'oshinkoMIX', label: '浅漬け盛り合わせ' },
+  { value: 'pirikaracya-syu', label: 'ピリ辛メンマチャーシュー' },
+  { value: 'makaroni', label: 'マカロニサラダ' },
+  { value: 'tamagoyaki', label: 'だし巻き玉子' },
+  { value: 'nachos', label: 'ナチョス' },
+  { value: 'yasaichidimi', label: '野菜チヂミ' },
+  { value: 'shioyakisoba', label: '塩焼きそば' },
+  { value: 'tacoraisu', label: 'タコライス' },
+  { value: 'tamagocya-han', label: 'たまごチャーハン' },
+  { value: 'onigiritukemonoMIX', label: 'おにぎりお漬物セット' },
+  { value: 'fruitsMIX', label: 'フルーツ盛り合わせ' },
+]
+
