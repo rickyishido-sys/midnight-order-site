@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchOrdersFromServer, loadOrders, patchOrderToServer, saveOrders } from '../utils/adminOrders'
 import { fetchMenuFromServer, loadMenuItems, saveMenuItems, syncMenuToServer } from '../utils/menuStore'
 import {
@@ -42,6 +42,7 @@ function AdminPage() {
   const monthOptions = useMemo(() => listRecentMonthKeys(12), [])
   const [salesMonth, setSalesMonth] = useState(() => monthOptions[0] || '')
   const [activeTab, setActiveTab] = useState('orders')
+  const menuSyncTimerRef = useRef(null)
   const [frontendBundle] = useState(() => {
     if (typeof document === 'undefined') return '（不明）'
     const mod = document.querySelector('script[type="module"]')
@@ -60,6 +61,15 @@ function AdminPage() {
       .then(setMenuItems)
       .catch(() => {})
   }, [authorized])
+
+  useEffect(
+    () => () => {
+      if (menuSyncTimerRef.current) {
+        clearTimeout(menuSyncTimerRef.current)
+      }
+    },
+    [],
+  )
 
   const stats = useMemo(() => {
     const totalOrders = orders.length
@@ -145,12 +155,15 @@ function AdminPage() {
   const syncMenu = (nextItems) => {
     setMenuItems(nextItems)
     saveMenuItems(nextItems)
-    syncMenuToServer(nextItems).catch((error) => {
-      const reason = error instanceof Error && error.message ? `\n詳細: ${error.message}` : ''
-      alert(
-        `サーバーへのメニュー保存に失敗しました。注文ページ・本日のメニューに反映されない可能性があります。KV / REDIS の設定とネットワークをご確認ください。${reason}`,
-      )
-    })
+    if (menuSyncTimerRef.current) {
+      clearTimeout(menuSyncTimerRef.current)
+    }
+    menuSyncTimerRef.current = setTimeout(() => {
+      syncMenuToServer(nextItems)
+        .catch((error) => {
+          console.error('[menu-sync] failed', error)
+        })
+    }, 800)
   }
 
   const addMenuItem = (item) => syncMenu([...menuItems, item])
