@@ -120,8 +120,11 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
             />
             <input
               type="number"
-              value={item.price}
-              onChange={(event) => onUpdate(item.id, 'price', Number(event.target.value))}
+              value={item.price ?? ''}
+              onChange={(event) => {
+                const raw = event.target.value
+                onUpdate(item.id, 'price', raw === '' ? '' : Number(raw))
+              }}
             />
             <select
               value={item.displaySection || 'カリッと'}
