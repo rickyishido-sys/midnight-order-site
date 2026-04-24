@@ -145,9 +145,10 @@ function AdminPage() {
   const syncMenu = (nextItems) => {
     setMenuItems(nextItems)
     saveMenuItems(nextItems)
-    syncMenuToServer(nextItems).catch(() => {
+    syncMenuToServer(nextItems).catch((error) => {
+      const reason = error instanceof Error && error.message ? `\n詳細: ${error.message}` : ''
       alert(
-        'サーバーへのメニュー保存に失敗しました。注文ページ・本日のメニューに反映されない可能性があります。KV / REDIS の設定とネットワークをご確認ください。',
+        `サーバーへのメニュー保存に失敗しました。注文ページ・本日のメニューに反映されない可能性があります。KV / REDIS の設定とネットワークをご確認ください。${reason}`,
       )
     })
   }

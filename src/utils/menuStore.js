@@ -55,7 +55,16 @@ export const syncMenuToServer = async (items) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ items }),
   })
-  if (!response.ok) throw new Error('Failed to save menu')
+  if (!response.ok) {
+    let detail = ''
+    try {
+      const data = await response.json()
+      detail = data?.details || data?.error || ''
+    } catch {
+      // noop
+    }
+    throw new Error(detail || 'Failed to save menu')
+  }
   const data = await response.json()
   const next = Array.isArray(data.items) ? normalizeMenuItems(data.items) : normalizeMenuItems(items)
   saveMenuItems(next)
