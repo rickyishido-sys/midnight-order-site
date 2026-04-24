@@ -15,10 +15,10 @@ export const buildOrderMessage = ({
   cashbackMethod,
   cashbackReceiver,
 }) => {
-  const itemLines = cartItems.map(
-    (item) =>
-      `・${item.name} ×${item.quantity} = ${toYen(item.price * item.quantity)}`,
-  )
+  const itemLines = cartItems.map((item) => {
+    const tag = item.requiresReservation ? '（要予約・前日16時まで）' : ''
+    return `・${item.name}${tag} ×${item.quantity} = ${toYen(item.price * item.quantity)}`
+  })
 
   return [
     '【深夜配達 注文】',

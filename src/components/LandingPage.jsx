@@ -41,20 +41,6 @@ function LandingPage() {
               利用の流れを見る
             </a>
           </div>
-          <div className="lp-illustrations" aria-hidden="true">
-            <div className="lp-illustration-card">
-              <span className="lp-illustration-icon">🍗</span>
-              <span className="lp-illustration-label">唐揚げ</span>
-            </div>
-            <div className="lp-illustration-card">
-              <span className="lp-illustration-icon">🍟</span>
-              <span className="lp-illustration-label">フライドポテト</span>
-            </div>
-            <div className="lp-illustration-card">
-              <span className="lp-illustration-icon">🥜</span>
-              <span className="lp-illustration-label">乾き物</span>
-            </div>
-          </div>
         </div>
       </section>
 

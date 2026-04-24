@@ -1,4 +1,5 @@
 import { getMenuImageUrl } from '../utils/menuImage'
+import { RESERVATION_BADGE, RESERVATION_NOTE } from '../utils/reservationCopy'
 
 const toYen = (value) => `¥${value.toLocaleString()}`
 
@@ -29,6 +30,14 @@ function MenuList({ items, quantities, onAdjust }) {
               <div>
                 <p className="menu-name">{item.name}</p>
                 <p className="menu-price">{toYen(item.price)}</p>
+                {item.requiresReservation ? (
+                  <>
+                    <div className="menu-reservation-row">
+                      <span className="menu-reservation-badge">{RESERVATION_BADGE}</span>
+                    </div>
+                    <p className="menu-reservation-note">{RESERVATION_NOTE}</p>
+                  </>
+                ) : null}
               </div>
             </div>
             <div className="qty-control">

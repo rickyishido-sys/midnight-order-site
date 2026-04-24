@@ -288,6 +288,35 @@
   color: var(--text);
 }
 
+.menu-reservation-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.menu-reservation-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #1a1208;
+  background: linear-gradient(135deg, #e8a838, #c97820);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.menu-reservation-note {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--text-sub);
+  max-width: 220px;
+}
+
 .menu-price {
   margin: 4px 0 0;
   color: var(--text-sub);
@@ -350,6 +379,25 @@
   padding: 4px 0;
   font-size: 0.92rem;
   color: var(--text);
+}
+
+.summary-list li .summary-line-reservation {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.summary-reservation-notice {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  border: 1px solid rgba(232, 168, 56, 0.35);
+  background: rgba(232, 168, 56, 0.08);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-sub);
 }
 
 .summary-row {
@@ -761,40 +809,6 @@
 .lp-actions .lp-secondary {
   width: 100%;
   box-sizing: border-box;
-}
-
-.lp-illustrations {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.lp-illustration-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  background: var(--card);
-  padding: 10px 8px;
-  display: grid;
-  justify-items: center;
-  gap: 5px;
-  transition: border-color 0.2s, transform 0.2s;
-}
-
-.lp-illustration-card:hover {
-  border-color: #e8a838;
-  transform: translateY(-2px);
-}
-
-.lp-illustration-icon {
-  font-size: 1.6rem;
-  line-height: 1;
-}
-
-.lp-illustration-label {
-  color: #f5f0e8;
-  font-size: 0.77rem;
-  font-weight: 600;
 }
 
 .lp-primary,
@@ -1350,6 +1364,33 @@
   margin: 0 0 8px;
 }
 
+.menu-public-reservation {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-public-reservation-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #0d0d0d;
+  background: #c9a96e;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.menu-public-reservation-note {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: #9a9388;
+}
+
 .menu-public-card-price {
   font-family: 'Noto Sans JP', sans-serif;
   font-size: 14px;
@@ -1773,10 +1814,17 @@ h1 {
   font-size: 0.83rem;
 }
 
+.admin-menu-reservation-hint {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-sub);
+}
+
 .admin-menu-add {
   margin-top: 10px;
   display: grid;
-  grid-template-columns: 1.1fr 0.65fr 0.75fr 1.2fr 1fr auto;
+  grid-template-columns: 1.1fr 0.6fr 0.7fr 1.1fr 0.95fr 0.72fr auto;
   gap: 8px;
 }
 
@@ -1788,9 +1836,13 @@ h1 {
 
 .admin-menu-item {
   display: grid;
-  grid-template-columns: 1.1fr 0.65fr 0.75fr 1.2fr 1fr auto auto;
+  grid-template-columns: 1.1fr 0.6fr 0.7fr 1.1fr 0.95fr 0.72fr auto auto auto;
   gap: 8px;
   align-items: center;
+}
+
+.admin-page .admin-menu-toggle-reservation {
+  white-space: nowrap;
 }
 
 .admin-menu-toggle {

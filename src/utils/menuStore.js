@@ -14,6 +14,7 @@ export const loadMenuItems = () => {
       category: item.category ?? 'フード',
       imageKey: item.imageKey ?? '',
       enabled: item.enabled !== false,
+      requiresReservation: item.requiresReservation === true,
     }))
   } catch {
     return defaultMenuItems

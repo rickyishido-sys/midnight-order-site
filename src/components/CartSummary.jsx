@@ -1,3 +1,5 @@
+import { RESERVATION_NOTE } from '../utils/reservationCopy'
+
 const toYen = (value) => `¥${value.toLocaleString()}`
 
 function CartSummary({
@@ -11,6 +13,9 @@ function CartSummary({
 }) {
   const shortage = Math.max(0, minimumOrder - subtotal)
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+  const hasReservationItems = cartItems.some(
+    (item) => item.requiresReservation === true && item.quantity > 0,
+  )
 
   return (
     <section className="summary glass-gold">
@@ -22,14 +27,27 @@ function CartSummary({
       {cartItems.length === 0 ? (
         <p className="empty">商品がまだ選択されていません。</p>
       ) : (
-        <ul className="summary-list">
-          {cartItems.map((item) => (
-            <li key={item.id}>
-              <span>{item.name} ×{item.quantity}</span>
-              <span>{toYen(item.price * item.quantity)}</span>
-            </li>
-          ))}
-        </ul>
+        <>
+          {hasReservationItems ? (
+            <p className="summary-reservation-notice" role="status">
+              {RESERVATION_NOTE}
+            </p>
+          ) : null}
+          <ul className="summary-list">
+            {cartItems.map((item) => (
+              <li key={item.id}>
+                <span>
+                  {item.name}
+                  {item.requiresReservation ? (
+                    <span className="summary-line-reservation"> ・要予約</span>
+                  ) : null}{' '}
+                  ×{item.quantity}
+                </span>
+                <span>{toYen(item.price * item.quantity)}</span>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       <div className="summary-row">

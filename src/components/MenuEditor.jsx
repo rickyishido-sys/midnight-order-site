@@ -7,6 +7,7 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
     description: '',
     category: 'フード',
     imageKey: '',
+    requiresReservation: false,
   })
 
   const addItem = () => {
@@ -24,6 +25,7 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
       category: form.category || 'フード',
       imageKey: form.imageKey || '',
       enabled: true,
+      requiresReservation: form.requiresReservation === true,
     })
 
     setForm({
@@ -32,6 +34,7 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
       description: '',
       category: 'フード',
       imageKey: '',
+      requiresReservation: false,
     })
   }
 
@@ -40,6 +43,9 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
       <div className="admin-menu-head">
         <h2>日替わりメニュー管理</h2>
         <p>追加・編集・削除・並び替え・日次リセットができます。</p>
+        <p className="admin-menu-reservation-hint">
+          「予約必要」にチェックした商品は、注文ページと本日のメニューに「要予約」と表示されます（前日16時までの予約が必要な案内）。
+        </p>
       </div>
 
       <div className="admin-menu-add">
@@ -79,6 +85,14 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
           <option value="snack">乾き物・おつまみ</option>
           <option value="onigiri">おにぎり</option>
         </select>
+        <label className="admin-menu-toggle admin-menu-toggle-reservation">
+          <input
+            type="checkbox"
+            checked={form.requiresReservation}
+            onChange={(event) => setForm({ ...form, requiresReservation: event.target.checked })}
+          />
+          予約必要
+        </label>
         <button className="btn-gold" type="button" onClick={addItem}>
           追加
         </button>
@@ -121,6 +135,14 @@ function MenuEditor({ menuItems, onAdd, onUpdate, onDelete, onMove, onClear }) {
               <option value="snack">乾き物・おつまみ</option>
               <option value="onigiri">おにぎり</option>
             </select>
+            <label className="admin-menu-toggle admin-menu-toggle-reservation">
+              <input
+                type="checkbox"
+                checked={item.requiresReservation === true}
+                onChange={(event) => onUpdate(item.id, 'requiresReservation', event.target.checked)}
+              />
+              予約必要
+            </label>
             <label className="admin-menu-toggle">
               <input
                 type="checkbox"
