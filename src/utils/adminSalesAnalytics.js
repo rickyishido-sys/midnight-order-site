@@ -33,6 +33,57 @@ export function formatMonthLabelJa(monthKey) {
   return `${Number(y)}年${Number(mo)}月`
 }
 
+/** 東京日付の YYYY-MM-DD */
+export function toDayKeyFromIso(iso) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleString('sv-SE', { timeZone: TOKYO }).slice(0, 10)
+}
+
+export function formatDayLabelJa(dayKey) {
+  if (!dayKey || !/^\d{4}-\d{2}-\d{2}$/.test(dayKey)) return dayKey
+  const dt = new Date(`${dayKey}T12:00:00+09:00`)
+  if (Number.isNaN(dt.getTime())) return dayKey
+  return new Intl.DateTimeFormat('ja-JP', {
+    timeZone: TOKYO,
+    month: 'numeric',
+    day: 'numeric',
+    weekday: 'short',
+  }).format(dt)
+}
+
+/** 対象月の全日付キー（1日〜月末） */
+export function listDayKeysInMonth(monthKey) {
+  if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) return []
+  const [y, mo] = monthKey.split('-').map(Number)
+  const lastDay = new Date(y, mo, 0).getDate()
+  const keys = []
+  for (let d = 1; d <= lastDay; d += 1) {
+    keys.push(`${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`)
+  }
+  return keys
+}
+
+/**
+ * 配達完了済み注文リストを、計上日（deliveredAt なければ createdAt）の東京暦で日別に集計。
+ * 対象月のカレンダー上の全日を行として返し、注文がない日は 0 件・¥0。
+ */
+export function aggregateDailySalesForMonth(orderList, monthKey) {
+  const dayKeys = listDayKeysInMonth(monthKey)
+  const map = new Map()
+  for (const o of orderList) {
+    const iso = o.deliveredAt || o.createdAt
+    const day = toDayKeyFromIso(iso)
+    if (!day || day.slice(0, 7) !== monthKey) continue
+    const cur = map.get(day) || { day, count: 0, revenue: 0 }
+    cur.count += 1
+    cur.revenue += Number(o.total || 0)
+    map.set(day, cur)
+  }
+  return dayKeys.map((day) => map.get(day) || { day, count: 0, revenue: 0 })
+}
+
 /** 配達完了かつ計上月が一致する注文（deliveredAt 優先、無ければ createdAt） */
 export function filterDeliveredRevenueInMonth(orders, monthKey) {
   return orders.filter((o) => {

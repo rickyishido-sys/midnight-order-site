@@ -151,6 +151,12 @@ export default function PaymentLinkGenerator({ menuItems }: Props) {
       <div className="admin-payment-link-head">
         <h2>決済リンク生成</h2>
         <p>Square のオンライン決済ページへのリンクを、注文内容から作成します。</p>
+        <ul className="admin-payment-link-howto">
+          <li>電話・LINE・来店など、<strong>注文ページを経由しない</strong>注文の代金を受け取るときに使います。</li>
+          <li>メニューから選ぶか手入力で<strong>商品名・単価・数量</strong>を入れ、「決済リンクを生成する」を押します。</li>
+          <li>表示された URL を<strong>お客様に送る</strong>（コピー／LINEで送る）。お客様がそのページで Square 決済します。</li>
+          <li>金額や内容が違うときは、行の追加・削除で組み立て直してください。</li>
+        </ul>
       </div>
 
       <label className="admin-payment-link-field">

@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { fetchOrdersFromServer, loadOrders, patchOrderToServer, saveOrders } from '../utils/adminOrders'
 import { loadMenuItems, saveMenuItems } from '../utils/menuStore'
 import {
+  aggregateDailySalesForMonth,
   aggregateHourlyByOrderTime,
   aggregateProductSales,
   filterDeliveredRevenueInMonth,
+  formatDayLabelJa,
   formatMonthLabelJa,
   listRecentMonthKeys,
   sumOrderTotals,
@@ -70,6 +72,7 @@ function AdminPage() {
     const revenue = sumOrderTotals(deliveredInMonth)
     const byProduct = aggregateProductSales(deliveredInMonth)
     const byHour = aggregateHourlyByOrderTime(deliveredInMonth)
+    const byDay = aggregateDailySalesForMonth(deliveredInMonth, monthKey)
     const maxHourRevenue = Math.max(0, ...byHour.map((b) => b.revenue))
     const peakHour =
       maxHourRevenue > 0 ? byHour.find((b) => b.revenue === maxHourRevenue) ?? null : null
@@ -79,6 +82,7 @@ function AdminPage() {
       revenue,
       byProduct,
       byHour,
+      byDay,
       peakHour,
     }
   }, [orders, salesMonth, monthOptions])
@@ -239,8 +243,9 @@ function AdminPage() {
           </label>
         </div>
         <p className="admin-sales-note">
-          月次売上・商品別は<strong>配達完了済み</strong>の注文のみ集計し、計上する月は
-          <strong>配達完了日</strong>（未記録の古いデータは受注日）を東京時間で月に振り分けています。
+          月次・日別・商品別は<strong>配達完了済み</strong>の注文のみ集計し、計上する日／月は
+          <strong>配達完了日</strong>（未記録の古いデータは受注日）の<strong>東京時間の暦</strong>です。
+          日別は当月の全日（1日〜月末）を表示し、注文がない日は 0 件です。
           時間帯別は同じ対象月の<strong>受注時刻（東京）</strong>ごとの件数・売上です。
         </p>
         <div className="admin-sales-summary">
@@ -256,6 +261,32 @@ function AdminPage() {
             <p>受注ピーク時間帯（売上ベース）</p>
             <strong>{salesAnalytics.peakHour ? `${salesAnalytics.peakHour.hour}時台` : '—'}</strong>
           </article>
+        </div>
+        <div className="admin-sales-block admin-sales-block--full">
+          <h3>日別売上（計上日＝配達完了日・東京／当月の全日）</h3>
+          <div className="admin-sales-table-wrap">
+            <table className="admin-sales-table">
+              <thead>
+                <tr>
+                  <th>日付</th>
+                  <th className="num">件数</th>
+                  <th className="num">売上</th>
+                </tr>
+              </thead>
+              <tbody>
+                {salesAnalytics.byDay.map((row) => (
+                  <tr key={row.day}>
+                    <td>
+                      {formatDayLabelJa(row.day)}
+                      <span className="admin-sales-day-key">（{row.day}）</span>
+                    </td>
+                    <td className="num">{row.count}</td>
+                    <td className="num">{toYen(row.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         <div className="admin-sales-tables">
           <div className="admin-sales-block">

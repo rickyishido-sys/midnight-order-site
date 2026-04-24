@@ -1710,6 +1710,17 @@ h1 {
   gap: 14px;
 }
 
+.admin-sales-block--full {
+  margin-bottom: 14px;
+}
+
+.admin-sales-day-key {
+  margin-left: 6px;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-sub);
+}
+
 @media (min-width: 900px) {
   .admin-sales-tables {
     grid-template-columns: 1fr 1fr;
@@ -1891,6 +1902,18 @@ h1 {
   margin: 6px 0 0;
   color: var(--text-sub);
   font-size: 0.83rem;
+}
+
+.admin-payment-link-howto {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--text-sub);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.admin-payment-link-howto li {
+  margin: 4px 0;
 }
 
 .admin-payment-link-field {
