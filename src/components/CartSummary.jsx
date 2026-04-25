@@ -70,7 +70,7 @@ function CartSummary({
         <p className="back">発注者バック：{toYen(customerBack)}/件</p>
       </div>
 
-      {subtotal < minimumOrder && (
+      {(Boolean(error) || subtotal < minimumOrder) && (
         <p className="error">
           {error || `最低注文金額まであと${toYen(shortage)}必要です。`}
         </p>
