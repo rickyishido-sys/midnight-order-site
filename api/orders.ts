@@ -6,6 +6,7 @@ import {
   upsertOrderInKv,
   writeOrdersToKv,
 } from './_lib/kvStore.js'
+import { sendOrderNotification } from './_lib/orderNotification.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applyNoStoreJson(res)
@@ -20,8 +21,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!order || !order.id) {
         return res.status(400).json({ error: 'order.id is required' })
       }
+      const currentOrders = await readOrdersFromKv()
+      const isNewOrder = !currentOrders.some((item) => String((item as { id?: string }).id || '') === String(order.id))
       const orders = await upsertOrderInKv(order)
-      return res.status(200).json({ ok: true, orders })
+      let mailNotice: 'sent' | 'skipped' | 'failed' = 'skipped'
+      if (isNewOrder) {
+        try {
+          const result = await sendOrderNotification(order)
+          mailNotice = result.skipped ? 'skipped' : 'sent'
+        } catch (error) {
+          console.error('[orders] email notify failed', error)
+          mailNotice = 'failed'
+        }
+      }
+      return res.status(200).json({ ok: true, orders, mailNotice })
     }
 
     if (req.method === 'PATCH') {

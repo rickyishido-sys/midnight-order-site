@@ -4,8 +4,7 @@ import InputSection from './components/InputSection'
 import MenuList from './components/MenuList'
 import CartSummary from './components/CartSummary'
 import OrderButton from './components/OrderButton'
-import { buildOrderMessage } from './utils/orderMessage'
-import { initLineClient, sendOrderToLine } from './utils/lineClient'
+import { initLineClient, openStoreLine } from './utils/lineClient'
 import { fetchOrdersFromServer, loadOrders, patchOrderToServer, upsertOrder, upsertOrderToServer } from './utils/adminOrders'
 import { fetchMenuFromServer, loadMenuItems } from './utils/menuStore'
 import { createSquarePaymentLink } from './utils/squareCheckout'
@@ -94,6 +93,7 @@ function OrderApp() {
   const [zipLoading, setZipLoading] = useState(false)
   const [zipError, setZipError] = useState('')
   const [menuCatalog, setMenuCatalog] = useState(loadMenuItems)
+  const [completedOrder, setCompletedOrder] = useState(null)
   const [hasLastOrder, setHasLastOrder] = useState(() =>
     Boolean(localStorage.getItem(LAST_ORDER_KEY)),
   )
@@ -322,28 +322,12 @@ function OrderApp() {
       cashbackPaidAt: null,
     }
     upsertOrder(orderRecord)
-    upsertOrderToServer(orderRecord).catch(() => {})
-
-    const message = buildOrderMessage({
-      storeName: form.storeName,
-      lineName: form.lineName,
-      zipCode: form.zipCode,
-      address: form.address,
-      note: form.note,
-      cartItems,
-      subtotal,
-      deliveryFee: DELIVERY_FEE,
-      total,
-      customerBack: CUSTOMER_BACK,
-      paymentMethod: PAYMENT_METHODS[form.paymentMethod],
-      cashbackMethod: CASHBACK_METHODS[form.cashbackMethod],
-      cashbackReceiver:
-        form.cashbackMethod === 'paypay'
-          ? form.cashbackPaypayId
-          : form.cashbackMethod === 'bank'
-            ? form.cashbackBankInfo
-            : '',
-    })
+    try {
+      await upsertOrderToServer(orderRecord)
+    } catch {
+      setError('注文の保存に失敗しました。通信環境を確認して再度お試しください。')
+      return
+    }
     localStorage.setItem(
       LAST_ORDER_KEY,
       JSON.stringify({
@@ -367,13 +351,60 @@ function OrderApp() {
         }
         upsertOrder(enrichedOrder)
         upsertOrderToServer(enrichedOrder).catch(() => {})
-        window.open(square.url, '_blank', 'noopener,noreferrer')
+        setCompletedOrder({
+          ...enrichedOrder,
+          paymentLabel: PAYMENT_METHODS[form.paymentMethod],
+          cashbackLabel: CASHBACK_METHODS[form.cashbackMethod],
+        })
+        window.location.href = square.url
       } catch {
         setError('Square決済リンクの作成に失敗しました。管理者に連絡してください。')
       }
+      return
     }
 
-    await sendOrderToLine(message)
+    setCompletedOrder({
+      ...orderRecord,
+      paymentLabel: PAYMENT_METHODS[form.paymentMethod],
+      cashbackLabel: CASHBACK_METHODS[form.cashbackMethod],
+    })
+  }
+
+  if (completedOrder) {
+    return (
+      <main className="page">
+        <section className="summary glass-gold" style={{ marginTop: '24px' }}>
+          <div className="section-head">
+            <p className="section-eyebrow">ORDER COMPLETED</p>
+            <p className="section-title">ご注文ありがとうございました</p>
+          </div>
+          <p className="empty">注文を受け付けました。お届けまでしばらくお待ちください。</p>
+          <div className="summary-row">
+            <span>注文番号</span>
+            <span>{completedOrder.id}</span>
+          </div>
+          <div className="summary-row">
+            <span>合計金額</span>
+            <span>¥{Number(completedOrder.total || 0).toLocaleString()}</span>
+          </div>
+          <div className="summary-row">
+            <span>キャッシュバック額</span>
+            <span>¥{Number(completedOrder.cashbackAmount || 0).toLocaleString()}</span>
+          </div>
+          <div className="summary-row">
+            <span>キャッシュバック方法</span>
+            <span>{completedOrder.cashbackLabel}</span>
+          </div>
+          <div className="summary-row">
+            <span>決済方法</span>
+            <span>{completedOrder.paymentLabel}</span>
+          </div>
+          <button className="order-button btn-gold" type="button" onClick={openStoreLine}>
+            店舗LINEを開く
+          </button>
+        </section>
+      </main>
+    )
   }
 
   return (

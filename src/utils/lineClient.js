@@ -1,4 +1,5 @@
 import liff from '@line/liff'
+import { brandSocial } from '../config/brandSocial'
 
 const LIFF_ID = import.meta.env.VITE_LIFF_ID
 let initialized = false
@@ -35,4 +36,23 @@ export const sendOrderToLine = async (message) => {
   }
 
   openOrRedirect(encodedUrl)
+}
+
+export const openStoreLine = async () => {
+  const lineUrl = brandSocial.lineFriend
+  if (!lineUrl) return
+
+  if (LIFF_ID) {
+    try {
+      await initLineClient()
+      if (liff.isInClient()) {
+        liff.openWindow({ url: lineUrl, external: true })
+        return
+      }
+    } catch {
+      // Fall back to browser redirect.
+    }
+  }
+
+  openOrRedirect(lineUrl)
 }
