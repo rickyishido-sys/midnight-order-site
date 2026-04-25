@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchOrdersFromServer, loadOrders, patchOrderToServer, saveOrders } from '../utils/adminOrders'
 import { fetchMenuFromServer, loadMenuItems, saveMenuItems, syncMenuToServer } from '../utils/menuStore'
+import { fetchStoreStatusFromServer, updateStoreStatusToServer } from '../utils/storeStatus'
 import {
   aggregateDailySalesForMonth,
   aggregateHourlyByOrderTime,
@@ -52,6 +53,7 @@ function AdminPage() {
   const [authorized, setAuthorized] = useState(false)
   const [orders, setOrders] = useState(loadOrders)
   const [menuItems, setMenuItems] = useState(loadMenuItems)
+  const [storeClosed, setStoreClosed] = useState(false)
   const monthOptions = useMemo(() => listRecentMonthKeys(12), [])
   const [salesMonth, setSalesMonth] = useState(() => monthOptions[0] || '')
   const [activeTab, setActiveTab] = useState('orders')
@@ -72,6 +74,9 @@ function AdminPage() {
     if (!authorized) return
     fetchMenuFromServer()
       .then(setMenuItems)
+      .catch(() => {})
+    fetchStoreStatusFromServer()
+      .then((status) => setStoreClosed(status.isClosed))
       .catch(() => {})
   }, [authorized])
 
@@ -213,6 +218,18 @@ function AdminPage() {
     syncMenu([])
   }
 
+  const toggleStoreClosed = async () => {
+    const next = !storeClosed
+    setStoreClosed(next)
+    try {
+      const status = await updateStoreStatusToServer(next)
+      setStoreClosed(status.isClosed)
+    } catch {
+      setStoreClosed(!next)
+      alert('定休日ステータスの更新に失敗しました。')
+    }
+  }
+
   if (!authorized) {
     return (
       <main className="admin-page">
@@ -238,9 +255,14 @@ function AdminPage() {
     <main className="admin-page">
       <header className="admin-header glass-gold">
         <h1>配達管理ダッシュボード</h1>
-        <a href="/order" target="_blank" rel="noreferrer">
-          注文ページへ
-        </a>
+        <div className="admin-header-links">
+          <button type="button" className={storeClosed ? 'btn-gold' : ''} onClick={toggleStoreClosed}>
+            {storeClosed ? '営業再開にする' : '定休日にする'}
+          </button>
+          <a href="/order" target="_blank" rel="noreferrer">
+            注文ページへ
+          </a>
+        </div>
       </header>
 
       <section className="admin-stats">
@@ -472,6 +494,9 @@ function AdminPage() {
             <p className="admin-address">
               〒{order.zipCode || '---'} {order.address || '住所未入力'}
             </p>
+            {order.reservationDate ? (
+              <p className="admin-meta-line">希望お届け日（要予約）: {order.reservationDate}</p>
+            ) : null}
             <p className="admin-total">
               合計 {toYen(order.total)} / 還元 {toYen(order.cashbackAmount)}
             </p>

@@ -3,6 +3,7 @@ import { applyNoStoreJson } from './_lib/cacheHeaders.js'
 import {
   patchOrderInKv,
   readOrdersFromKv,
+  readStoreStatusFromKv,
   upsertOrderInKv,
   writeOrdersToKv,
 } from './_lib/kvStore.js'
@@ -24,6 +25,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       const currentOrders = await readOrdersFromKv()
       const isNewOrder = !currentOrders.some((item) => String((item as { id?: string }).id || '') === String(order.id))
+      if (isNewOrder) {
+        const status = await readStoreStatusFromKv()
+        if (status?.isClosed) {
+          return res.status(403).json({ error: 'Store is closed today' })
+        }
+      }
       const orders = await upsertOrderInKv(order)
       let mailNotice: 'sent' | 'skipped' | 'failed' = 'skipped'
       let pushNotice: 'sent' | 'skipped' | 'failed' = 'skipped'

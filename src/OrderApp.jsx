@@ -14,6 +14,7 @@ import {
 } from './utils/adminOrders'
 import { fetchMenuFromServer, loadMenuItems } from './utils/menuStore'
 import { createSquarePaymentLink } from './utils/squareCheckout'
+import { fetchStoreStatusFromServer } from './utils/storeStatus'
 
 const MINIMUM_ORDER = 3000
 const CUSTOMER_BACK = 300
@@ -36,6 +37,7 @@ const initialState = {
   lineName: '',
   zipCode: '',
   address: '',
+  reservationDate: '',
   note: '',
   paymentMethod: 'cash',
   cashbackMethod: 'next_discount',
@@ -54,6 +56,7 @@ const loadFromStorage = () => {
       lineName: parsed.lineName ?? '',
       zipCode: parsed.zipCode ?? '',
       address: parsed.address ?? '',
+      reservationDate: parsed.reservationDate ?? '',
       note: parsed.note ?? '',
       paymentMethod: parsed.paymentMethod ?? 'cash',
       cashbackMethod: parsed.cashbackMethod ?? 'next_discount',
@@ -101,6 +104,7 @@ function OrderApp() {
   const [menuCatalog, setMenuCatalog] = useState(loadMenuItems)
   const [completedOrder, setCompletedOrder] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [storeClosed, setStoreClosed] = useState(false)
   const [hasLastOrder, setHasLastOrder] = useState(() =>
     Boolean(localStorage.getItem(LAST_ORDER_KEY)),
   )
@@ -158,6 +162,9 @@ function OrderApp() {
     fetchMenuFromServer()
       .then(setMenuCatalog)
       .catch(() => {})
+    fetchStoreStatusFromServer()
+      .then((status) => setStoreClosed(status.isClosed))
+      .catch(() => {})
   }, [])
 
   const activeMenuItems = useMemo(
@@ -194,7 +201,7 @@ function OrderApp() {
 
   const total = subtotal + DELIVERY_FEE
   const shortage = Math.max(0, MINIMUM_ORDER - subtotal)
-  const canOrder = subtotal >= MINIMUM_ORDER && cartItems.length > 0
+  const canOrder = !storeClosed && subtotal >= MINIMUM_ORDER && cartItems.length > 0
 
   const persist = (nextForm) => {
     setForm(nextForm)
@@ -271,6 +278,7 @@ function OrderApp() {
         lineName: parsed.lineName ?? '',
         zipCode: parsed.zipCode ?? '',
         address: parsed.address ?? '',
+        reservationDate: parsed.reservationDate ?? '',
         note: parsed.note ?? '',
       paymentMethod: parsed.paymentMethod ?? 'cash',
       cashbackMethod: parsed.cashbackMethod ?? 'next_discount',
@@ -286,6 +294,10 @@ function OrderApp() {
 
   const handleOrder = async () => {
     if (submitting) return
+    if (storeClosed) {
+      setError('本日は定休日です。')
+      return
+    }
     if (subtotal < MINIMUM_ORDER) {
       setError(`最低注文金額まであと¥${shortage.toLocaleString()}必要です。`)
       return
@@ -311,6 +323,14 @@ function OrderApp() {
       return
     }
 
+    const hasReservationItems = cartItems.some(
+      (item) => item.requiresReservation === true && item.quantity > 0,
+    )
+    if (hasReservationItems && !form.reservationDate) {
+      setError('要予約商品を含むため、希望お届け日を入力してください。')
+      return
+    }
+
     setError('')
     setSubmitting(true)
     const orderRecord = {
@@ -320,6 +340,7 @@ function OrderApp() {
       lineName: form.lineName || '未入力',
       zipCode: form.zipCode || '',
       address: form.address || '',
+      reservationDate: form.reservationDate || '',
       note: form.note || '',
       items: cartItems,
       subtotal,
@@ -418,12 +439,18 @@ function OrderApp() {
             <span>キャッシュバック方法</span>
             <span>{completedOrder.cashbackLabel}</span>
           </div>
+          {completedOrder.reservationDate ? (
+            <div className="summary-row">
+              <span>希望お届け日（要予約）</span>
+              <span>{completedOrder.reservationDate}</span>
+            </div>
+          ) : null}
           <div className="summary-row">
             <span>決済方法</span>
             <span>{completedOrder.paymentLabel}</span>
           </div>
           <button className="order-button btn-gold" type="button" onClick={openStoreLine}>
-            店舗LINEを開く
+            OHACOのLINEに戻る
           </button>
         </section>
       </main>
@@ -441,11 +468,14 @@ function OrderApp() {
         </a>
       </div>
       <Header />
+      {storeClosed ? <p className="store-closed-banner">本日は定休日です。</p> : null}
       <InputSection
         storeName={form.storeName}
         lineName={form.lineName}
         zipCode={form.zipCode}
         address={form.address}
+        reservationDate={form.reservationDate}
+        hasReservationItems={cartItems.some((item) => item.requiresReservation === true && item.quantity > 0)}
         note={form.note}
         paymentMethod={form.paymentMethod}
         cashbackMethod={form.cashbackMethod}
@@ -466,7 +496,7 @@ function OrderApp() {
         total={total}
         minimumOrder={MINIMUM_ORDER}
         customerBack={CUSTOMER_BACK}
-        error={error || lineStatus}
+        error={(storeClosed ? '本日は定休日です。' : error) || lineStatus}
       />
       <OrderButton
         canOrder={canOrder}
@@ -475,6 +505,7 @@ function OrderApp() {
         minimumOrder={MINIMUM_ORDER}
         onOrder={handleOrder}
         submitting={submitting}
+        storeClosed={storeClosed}
       />
     </main>
   )

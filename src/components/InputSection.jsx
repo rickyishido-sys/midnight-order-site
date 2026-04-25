@@ -3,6 +3,8 @@ function InputSection({
   lineName,
   zipCode,
   address,
+  reservationDate,
+  hasReservationItems,
   note,
   onChangeField,
   onLookupZip,
@@ -30,17 +32,17 @@ function InputSection({
       )}
 
       <label className="field">
-        <span>店舗名</span>
+        <span>お届け先（店舗名または氏名）</span>
         <input
           type="text"
           value={storeName}
           onChange={(e) => onChangeField('storeName', e.target.value)}
-          placeholder="ご利用の店舗名を入力"
+          placeholder="例：OHACO / 山田太郎"
         />
       </label>
 
       <label className="field">
-        <span>発注者LINE名</span>
+        <span>発注者LINE名（表示名またはLINE ID）</span>
         <input
           type="text"
           value={lineName}
@@ -51,6 +53,7 @@ function InputSection({
 
       <label className="field">
         <span>郵便番号</span>
+        <small className="field-help">現在の配達エリアは、横浜市中区・西区・南区のみです。</small>
         <div className="zip-row">
           <input
             type="text"
@@ -66,6 +69,18 @@ function InputSection({
         </div>
         {zipError && <small className="zip-error">{zipError}</small>}
       </label>
+
+      {hasReservationItems ? (
+        <label className="field">
+          <span>要予約商品の希望お届け日</span>
+          <input
+            type="date"
+            value={reservationDate}
+            onChange={(e) => onChangeField('reservationDate', e.target.value)}
+          />
+          <small className="field-help">要予約商品は前日16:00までにご予約ください。</small>
+        </label>
+      ) : null}
 
       <label className="field">
         <span>住所</span>

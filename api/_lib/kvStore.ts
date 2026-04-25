@@ -1,6 +1,7 @@
 export const ORDERS_KV_KEY = 'ohaco_orders'
 export const CASHBACK_HISTORY_KV_KEY = 'ohaco_cashback_history'
 export const MENU_KV_KEY = 'ohaco_menu_catalog'
+export const STORE_STATUS_KV_KEY = 'ohaco_store_status'
 
 /**
  * Read env without `process.env.REDIS_URL`-style member access so bundlers cannot
@@ -169,4 +170,36 @@ export const upsertCashbackEntryInKv = async (entry: Record<string, unknown>) =>
   }
   await writeCashbackHistoryToKv(history)
   return history
+}
+
+export const readStoreStatusFromKv = async (): Promise<{ isClosed: boolean } | null> => {
+  ensureKvConfig()
+  if (hasKvConfig()) {
+    const kv = await getVercelKvClient()
+    const data = await kv.get(STORE_STATUS_KV_KEY)
+    if (!data || typeof data !== 'object') return null
+    const isClosed = Boolean((data as { isClosed?: unknown }).isClosed)
+    return { isClosed }
+  }
+  const client = await getRedisClient()
+  const raw = await client.get(STORE_STATUS_KV_KEY)
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object') return null
+    return { isClosed: Boolean((parsed as { isClosed?: unknown }).isClosed) }
+  } catch {
+    return null
+  }
+}
+
+export const writeStoreStatusToKv = async (status: { isClosed: boolean }) => {
+  ensureKvConfig()
+  if (hasKvConfig()) {
+    const kv = await getVercelKvClient()
+    await kv.set(STORE_STATUS_KV_KEY, status)
+    return
+  }
+  const client = await getRedisClient()
+  await client.set(STORE_STATUS_KV_KEY, JSON.stringify(status))
 }

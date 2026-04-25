@@ -5,6 +5,7 @@ type OrderLike = {
   lineName?: string
   zipCode?: string
   address?: string
+  reservationDate?: string
   note?: string
   total?: number
   subtotal?: number
@@ -49,6 +50,7 @@ const buildText = (order: OrderLike) => {
     `発注者LINE名: ${order.lineName || '-'}`,
     `郵便番号: ${order.zipCode || '-'}`,
     `住所: ${order.address || '-'}`,
+    order.reservationDate ? `希望お届け日（要予約）: ${order.reservationDate}` : null,
     `決済方法: ${paymentLabel(order.paymentMethod)}`,
     `キャッシュバック: ${toYen(order.cashbackAmount)} / ${cashbackLabel(order.cashbackMethod)}`,
     order.cashbackReceiver ? `受取先: ${order.cashbackReceiver}` : null,

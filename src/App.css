@@ -139,6 +139,16 @@
   color: var(--text-sub);
 }
 
+.store-closed-banner {
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.08);
+  color: #fca5a5;
+  font-weight: 600;
+}
+
 .field {
   display: block;
   margin-bottom: 12px;
@@ -225,6 +235,13 @@
   margin-top: 6px;
   color: #f87171;
   font-size: 0.84rem;
+}
+
+.field-help {
+  display: block;
+  margin: -2px 0 7px;
+  color: var(--text-sub);
+  font-size: 0.76rem;
 }
 
 .payment-note {
@@ -1666,6 +1683,22 @@ h1 {
 
 .admin-page .admin-header a {
   color: var(--accent);
+}
+
+.admin-header-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-header-links button {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--value-card);
+  color: var(--text);
+  padding: 7px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
 }
 
 .admin-page .admin-stats strong {

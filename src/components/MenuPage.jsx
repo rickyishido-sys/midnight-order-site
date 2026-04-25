@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { groupMenuItemsByDisplaySection } from '../utils/menuDisplaySections'
 import { fetchMenuFromServer, loadMenuItems } from '../utils/menuStore'
+import { fetchStoreStatusFromServer } from '../utils/storeStatus'
 import MenuCard from './MenuCard'
 import SocialFollowRow from './SocialFollowRow'
 
@@ -12,12 +13,16 @@ const todayLabel = () => {
 
 function MenuPage() {
   const [items, setItems] = useState(loadMenuItems)
+  const [storeClosed, setStoreClosed] = useState(false)
   const visibleItems = useMemo(() => items.filter((item) => item.enabled !== false), [items])
   const menuGroups = useMemo(() => groupMenuItemsByDisplaySection(visibleItems), [visibleItems])
 
   useEffect(() => {
     fetchMenuFromServer()
       .then(setItems)
+      .catch(() => {})
+    fetchStoreStatusFromServer()
+      .then((status) => setStoreClosed(status.isClosed))
       .catch(() => {})
   }, [])
 
@@ -34,6 +39,7 @@ function MenuPage() {
         <a href="/order">注文ページへ</a>
       </nav>
       <div className="menu-section-label">TODAY&apos;S MENU</div>
+      {storeClosed ? <p className="store-closed-banner">本日は定休日です。</p> : null}
 
       {visibleItems.length === 0 ? (
         <div className="menu-empty">
