@@ -16,6 +16,19 @@ import PaymentLinkGenerator from './PaymentLinkGenerator'
 
 const toYen = (value) => `¥${Number(value || 0).toLocaleString()}`
 const ADMIN_PIN = import.meta.env.VITE_ADMIN_PIN || '1122'
+const formatDateTimeJa = (value) => {
+  if (!value) return '不明'
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return '不明'
+  return d.toLocaleString('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
 
 const ADMIN_TABS = [
   { id: 'sales', label: '売上分析' },
@@ -445,6 +458,7 @@ function AdminPage() {
                 <p className="admin-order-meta">
                   {order.storeName} / {order.lineName}
                 </p>
+                <p className="admin-order-meta">注文時刻: {formatDateTimeJa(order.createdAt)}</p>
               </div>
               <span className={`admin-status admin-status-${order.deliveryStatus}`}>
                 {order.deliveryStatus === 'delivered'
