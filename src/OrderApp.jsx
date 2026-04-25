@@ -5,7 +5,13 @@ import MenuList from './components/MenuList'
 import CartSummary from './components/CartSummary'
 import OrderButton from './components/OrderButton'
 import { initLineClient, openStoreLine } from './utils/lineClient'
-import { fetchOrdersFromServer, loadOrders, patchOrderToServer, upsertOrder, upsertOrderToServer } from './utils/adminOrders'
+import {
+  fetchOrdersFromServer,
+  loadOrders,
+  patchOrderToServer,
+  saveOrders,
+  upsertOrderToServer,
+} from './utils/adminOrders'
 import { fetchMenuFromServer, loadMenuItems } from './utils/menuStore'
 import { createSquarePaymentLink } from './utils/squareCheckout'
 
@@ -94,6 +100,7 @@ function OrderApp() {
   const [zipError, setZipError] = useState('')
   const [menuCatalog, setMenuCatalog] = useState(loadMenuItems)
   const [completedOrder, setCompletedOrder] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
   const [hasLastOrder, setHasLastOrder] = useState(() =>
     Boolean(localStorage.getItem(LAST_ORDER_KEY)),
   )
@@ -206,6 +213,17 @@ function OrderApp() {
     persist({ ...form, quantities: nextQuantities })
   }
 
+  const saveOrderLocal = (order) => {
+    const orders = loadOrders()
+    const index = orders.findIndex((item) => item.id === order.id)
+    if (index >= 0) {
+      orders[index] = order
+    } else {
+      orders.unshift(order)
+    }
+    saveOrders(orders)
+  }
+
   const lookupZipCode = async () => {
     const cleanZip = form.zipCode.replace(/[^0-9]/g, '')
     if (cleanZip.length !== 7) {
@@ -267,6 +285,7 @@ function OrderApp() {
   }
 
   const handleOrder = async () => {
+    if (submitting) return
     if (subtotal < MINIMUM_ORDER) {
       setError(`最低注文金額まであと¥${shortage.toLocaleString()}必要です。`)
       return
@@ -293,6 +312,7 @@ function OrderApp() {
     }
 
     setError('')
+    setSubmitting(true)
     const orderRecord = {
       id: createOrderId(),
       createdAt: new Date().toISOString(),
@@ -321,11 +341,12 @@ function OrderApp() {
       deliveredAt: null,
       cashbackPaidAt: null,
     }
-    upsertOrder(orderRecord)
+    saveOrderLocal(orderRecord)
     try {
       await upsertOrderToServer(orderRecord)
     } catch {
       setError('注文の保存に失敗しました。通信環境を確認して再度お試しください。')
+      setSubmitting(false)
       return
     }
     localStorage.setItem(
@@ -349,7 +370,7 @@ function OrderApp() {
           squarePaymentLinkId: square.paymentLinkId || '',
           squareOrderId: square.squareOrderId || '',
         }
-        upsertOrder(enrichedOrder)
+        saveOrderLocal(enrichedOrder)
         upsertOrderToServer(enrichedOrder).catch(() => {})
         setCompletedOrder({
           ...enrichedOrder,
@@ -359,6 +380,7 @@ function OrderApp() {
         window.location.href = square.url
       } catch {
         setError('Square決済リンクの作成に失敗しました。管理者に連絡してください。')
+        setSubmitting(false)
       }
       return
     }
@@ -368,6 +390,7 @@ function OrderApp() {
       paymentLabel: PAYMENT_METHODS[form.paymentMethod],
       cashbackLabel: CASHBACK_METHODS[form.cashbackMethod],
     })
+    setSubmitting(false)
   }
 
   if (completedOrder) {
@@ -451,6 +474,7 @@ function OrderApp() {
         total={total}
         minimumOrder={MINIMUM_ORDER}
         onOrder={handleOrder}
+        submitting={submitting}
       />
     </main>
   )
