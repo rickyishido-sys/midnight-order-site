@@ -2,9 +2,17 @@ export const ORDERS_KV_KEY = 'ohaco_orders'
 export const CASHBACK_HISTORY_KV_KEY = 'ohaco_cashback_history'
 export const MENU_KV_KEY = 'ohaco_menu_catalog'
 
+/**
+ * Read env without `process.env.REDIS_URL`-style member access so bundlers cannot
+ * replace secrets with `undefined` at build time when values are build-hidden.
+ */
+const env = (key: string) => process.env[key]
+
+const redisUrl = () => env(['REDIS', '_URL'].join(''))
+
 const hasKvConfig = () =>
-  Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN)
-const hasRedisUrl = () => Boolean(process.env.REDIS_URL)
+  Boolean(env(['KV', '_REST_API_URL'].join('')) && env(['KV', '_REST_API_TOKEN'].join('')))
+const hasRedisUrl = () => Boolean(redisUrl())
 
 type RedisLikeClient = {
   connect: () => Promise<void>
@@ -27,7 +35,7 @@ const getRedisClient = async () => {
   if (!hasRedisUrl()) throw new Error('REDIS_URL is not set')
   if (!redisClient) {
     const Redis = await getRedisClass()
-    redisClient = new Redis(process.env.REDIS_URL!, {
+    redisClient = new Redis(redisUrl()!, {
       lazyConnect: true,
       maxRetriesPerRequest: 1,
       enableOfflineQueue: false,
