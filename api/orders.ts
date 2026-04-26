@@ -9,6 +9,7 @@ import {
 } from './_lib/kvStore.js'
 import { sendOrderNotification } from './_lib/orderNotification.js'
 import { sendOrderPushNotification } from './_lib/orderPushNotification.js'
+import { sendOrderLineNotification } from './_lib/orderLineNotification.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applyNoStoreJson(res)
@@ -34,6 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const orders = await upsertOrderInKv(order)
       let mailNotice: 'sent' | 'skipped' | 'failed' = 'skipped'
       let pushNotice: 'sent' | 'skipped' | 'failed' = 'skipped'
+      let lineNotice: 'sent' | 'skipped' | 'failed' = 'skipped'
       if (isNewOrder) {
         try {
           const result = await sendOrderNotification(order)
@@ -49,8 +51,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           console.error('[orders] push notify failed', error)
           pushNotice = 'failed'
         }
+        try {
+          const result = await sendOrderLineNotification(order)
+          lineNotice = result.skipped ? 'skipped' : 'sent'
+        } catch (error) {
+          console.error('[orders] line notify failed', error)
+          lineNotice = 'failed'
+        }
       }
-      return res.status(200).json({ ok: true, orders, mailNotice, pushNotice })
+      return res.status(200).json({ ok: true, orders, mailNotice, pushNotice, lineNotice })
     }
 
     if (req.method === 'PATCH') {
