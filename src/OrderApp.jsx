@@ -38,6 +38,7 @@ const initialState = {
   zipCode: '',
   address: '',
   reservationDate: '',
+  reservationTime: '',
   note: '',
   paymentMethod: 'cash',
   cashbackMethod: 'next_discount',
@@ -57,6 +58,7 @@ const loadFromStorage = () => {
       zipCode: parsed.zipCode ?? '',
       address: parsed.address ?? '',
       reservationDate: parsed.reservationDate ?? '',
+      reservationTime: parsed.reservationTime ?? '',
       note: parsed.note ?? '',
       paymentMethod: parsed.paymentMethod ?? 'cash',
       cashbackMethod: parsed.cashbackMethod ?? 'next_discount',
@@ -279,6 +281,7 @@ function OrderApp() {
         zipCode: parsed.zipCode ?? '',
         address: parsed.address ?? '',
         reservationDate: parsed.reservationDate ?? '',
+        reservationTime: parsed.reservationTime ?? '',
         note: parsed.note ?? '',
       paymentMethod: parsed.paymentMethod ?? 'cash',
       cashbackMethod: parsed.cashbackMethod ?? 'next_discount',
@@ -326,8 +329,8 @@ function OrderApp() {
     const hasReservationItems = cartItems.some(
       (item) => item.requiresReservation === true && item.quantity > 0,
     )
-    if (hasReservationItems && !form.reservationDate) {
-      setError('要予約商品を含むため、希望お届け日を入力してください。')
+    if (hasReservationItems && (!form.reservationDate || !form.reservationTime)) {
+      setError('要予約商品を含むため、配達希望日と希望時間を入力してください。')
       return
     }
 
@@ -341,6 +344,7 @@ function OrderApp() {
       zipCode: form.zipCode || '',
       address: form.address || '',
       reservationDate: form.reservationDate || '',
+      reservationTime: form.reservationTime || '',
       note: form.note || '',
       items: cartItems,
       subtotal,
@@ -441,8 +445,11 @@ function OrderApp() {
           </div>
           {completedOrder.reservationDate ? (
             <div className="summary-row">
-              <span>希望お届け日（要予約）</span>
-              <span>{completedOrder.reservationDate}</span>
+              <span>希望お届け日時（要予約）</span>
+              <span>
+                {completedOrder.reservationDate}
+                {completedOrder.reservationTime ? ` ${completedOrder.reservationTime}` : ''}
+              </span>
             </div>
           ) : null}
           <div className="summary-row">
@@ -475,6 +482,7 @@ function OrderApp() {
         zipCode={form.zipCode}
         address={form.address}
         reservationDate={form.reservationDate}
+        reservationTime={form.reservationTime}
         hasReservationItems={cartItems.some((item) => item.requiresReservation === true && item.quantity > 0)}
         note={form.note}
         paymentMethod={form.paymentMethod}

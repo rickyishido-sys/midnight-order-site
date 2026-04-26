@@ -495,7 +495,10 @@ function AdminPage() {
               〒{order.zipCode || '---'} {order.address || '住所未入力'}
             </p>
             {order.reservationDate ? (
-              <p className="admin-meta-line">希望お届け日（要予約）: {order.reservationDate}</p>
+              <p className="admin-meta-line">
+                希望お届け日時（要予約）: {order.reservationDate}
+                {order.reservationTime ? ` ${order.reservationTime}` : ''}
+              </p>
             ) : null}
             <p className="admin-total">
               合計 {toYen(order.total)} / 還元 {toYen(order.cashbackAmount)}

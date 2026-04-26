@@ -4,6 +4,7 @@ function InputSection({
   zipCode,
   address,
   reservationDate,
+  reservationTime,
   hasReservationItems,
   note,
   onChangeField,
@@ -71,15 +72,22 @@ function InputSection({
       </label>
 
       {hasReservationItems ? (
-        <label className="field">
-          <span>要予約商品の希望お届け日</span>
-          <input
-            type="date"
-            value={reservationDate}
-            onChange={(e) => onChangeField('reservationDate', e.target.value)}
-          />
+        <div className="field">
+          <span>要予約商品の配達希望日時</span>
+          <div className="zip-row">
+            <input
+              type="date"
+              value={reservationDate}
+              onChange={(e) => onChangeField('reservationDate', e.target.value)}
+            />
+            <input
+              type="time"
+              value={reservationTime}
+              onChange={(e) => onChangeField('reservationTime', e.target.value)}
+            />
+          </div>
           <small className="field-help">要予約商品は前日16:00までにご予約ください。</small>
-        </label>
+        </div>
       ) : null}
 
       <label className="field">
